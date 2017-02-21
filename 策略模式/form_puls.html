@@ -21,12 +21,12 @@
                 }
             },
             minLength: function(val, len, errMsg){
-                if(val.length < len){
+                if(val.length < len && val.length > 0){
                     return errMsg;
                 }
             },
             maxLength: function(val, len, errMsg){
-                if(val.length > len){
+                if(val.length > len && val.length > 0){
                     return errMsg;
                 }
             },
@@ -40,30 +40,31 @@
             this.cache = [];
         }
         Validator.prototype.add = function(){
-            _self = this;
+            var _self = this;
             var obj = [].shift.call(arguments),
                     dom = obj.el,
                     arr = obj.rules,
                     args = arguments;
 
-            console.log(arr)
+
             for(var i = 0, l = arr.length; i < l; i++){
-                var item = arr[i];
+                var item = arr[i],
+                        ary = args;
 
-                _self.cache.push(function(){
-                    var fn = rule[item.name];
-                    [].unshift.call(args, item.msg);
+                (function (item, ary){ // 用闭包缓存i，等后面执行这个函数时，item只会等于arr[arr.length]
+                    _self.cache.push(function(){
+                        var fn = rule[item.name];
+                        [].unshift.call(ary, item.msg);
 
-                    if(item.len){
-                        [].unshift.call(args, item.len);
-                    }
-                    [].unshift.call(args, dom.value);
-                    console.log(args,dom,i)
-                    return fn.apply(dom, args)
-                })
+                        if(item.len){
+                            [].unshift.call(ary, item.len);
+                        }
+                        [].unshift.call(ary, dom.value);
+                        return fn.apply(dom, ary)
+                    })
+                })(item, ary)
+
             }
-
-
         }
         Validator.prototype.start = function(){
 
@@ -94,6 +95,11 @@
                         name: 'isNonEmpty',
                         msg: 'username不能为空'
                     },
+                    {
+                        name: 'maxLength',
+                        len: 10,
+                        msg: 'username长度不能大于10'
+                    }
                 ]
             })
 
@@ -107,7 +113,6 @@
                 return false;
             }
         }
-
     })()
 </script>
 </body>

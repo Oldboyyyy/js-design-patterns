@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>表单验证2.0</title>
+</head>
+<body>
+<form action="#" id="form" method="get">
+    <label >username:<input type="text" name="username"></label>
+    <label >password:<input type="password" name="userpass"></label>
+    <label >telNum:<input type="text" name="usertel"></label>
+    <button type="submit">提交</button>
+    <button type="reset">重置</button>
+</form>
+<script>
+    (function(){
+        var rule = {
+            isNonEmpty: function(val, errMsg){
+                if(val === ''){
+                    return errMsg;
+                }
+            },
+            minLength: function(val, len, errMsg){
+                if(val.length < len){
+                    return errMsg;
+                }
+            },
+            maxLength: function(val, len, errMsg){
+                if(val.length > len){
+                    return errMsg;
+                }
+            },
+            isTel: function(val, errMsg){
+                if(!/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/.test(val)){
+                    return errMsg;
+                }
+            }
+        }
+        var Validator = function(){
+            this.cache = [];
+        }
+        Validator.prototype.add = function(){
+            _self = this;
+            var obj = [].shift.call(arguments),
+                    dom = obj.el,
+                    arr = obj.rules,
+                    args = arguments;
+
+            console.log(arr)
+            for(var i = 0, l = arr.length; i < l; i++){
+                var item = arr[i];
+
+                _self.cache.push(function(){
+                    var fn = rule[item.name];
+                    [].unshift.call(args, item.msg);
+
+                    if(item.len){
+                        [].unshift.call(args, item.len);
+                    }
+                    [].unshift.call(args, dom.value);
+                    console.log(args,dom,i)
+                    return fn.apply(dom, args)
+                })
+            }
+
+
+        }
+        Validator.prototype.start = function(){
+
+            for(var i = 0, l = this.cache.length; i < l; i++){
+
+                var fn = this.cache[i];
+                var msg = fn();
+
+                if(msg){ //有返回值说明验证不通过
+                    return msg;
+                }
+            }
+        }
+
+        var form = document.getElementById('form');
+
+        function validataFn(){
+            var v = new Validator();
+            v.add({
+                el: form.username,
+                rules: [
+                    {
+                        name: 'minLength',
+                        len: 6,
+                        msg: 'username长度不能小于6'
+                    },
+                    {
+                        name: 'isNonEmpty',
+                        msg: 'username不能为空'
+                    },
+                ]
+            })
+
+            return v.start();
+        }
+
+        form.onsubmit = function(){
+            var msg = validataFn()
+            if(msg){
+                alert(msg)
+                return false;
+            }
+        }
+
+    })()
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>表单验证1.0</title>
+</head>
+<body>
+<form action="#" id="form" method="get">
+    <label >username:<input type="text" name="username"></label>
+    <label >password:<input type="password" name="userpass"></label>
+    <label >telNum:<input type="text" name="usertel"></label>
+    <button type="submit">提交</button>
+    <button type="reset">重置</button>
+</form>
+<script>
+    (function(){
+        var rule = {
+            isNonEmpty: function(val, errMsg){
+                if(val === ''){
+                    return errMsg;
+                }
+            },
+            minLength: function(val, len, errMsg){
+                if(val.length < len){
+                    return errMsg;
+                }
+            },
+            isTel: function(val, errMsg){
+                if(!/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/.test(val)){
+                    return errMsg;
+                }
+            }
+        }
+        var Validator = function(){
+            this.cache = [];
+        }
+        Validator.prototype.add = function(dom, _rule, msg){
+            var arr = _rule.split(':'); //_rule = 'minLength:6' => ['minLength',6]  _rule='isTel' => ['isTel']
+            this.cache.push(function(){ //新建匿名函数，并塞入数组
+                var fn = rule[arr.shift()]; //取到rule对应的处理函数
+                arr.unshift(dom.value); //把要处理的值塞到数组第一位
+                arr.push(msg); //提示信息放在数组最后一位
+
+                return fn.apply(dom, arr); //返回处理函数得到参数，和指针
+            })
+        }
+        Validator.prototype.start = function(){
+
+            for(var i = 0, l = this.cache.length; i < l; i++){
+
+                var fn = this.cache[i];
+                var msg = fn();
+
+                if(msg){ //有返回值说明验证不通过
+                    return msg;
+                }
+            }
+        }
+
+        var form = document.getElementById('form');
+
+        function validataFn(){
+            var v = new Validator();
+            v.add(form.username, 'isNonEmpty', '用户名不能为空')
+            v.add(form.userpass, 'minLength:6', '密码长度不能小于6位')
+            v.add(form.usertel, 'isTel', '手机号码不对')
+            return v.start();
+        }
+
+        form.onsubmit = function(){
+            var msg = validataFn()
+            if(msg){
+                alert(msg)
+                return false;
+            }
+        }
+
+    })()
+</script>
+</body>
+</html>

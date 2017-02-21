@@ -20,12 +20,10 @@
                each; //循环函数
 
            each = function (arr, fn) {
-               var ret;
                for (var i = 0, len = arr.length; i < len; i++) {
                    var n = arr[i];
-                   ret = fn.call(n, i, n)
+                   fn.call(n, i, n)
                }
-               return ret; // 返回最后一项
            };
 
            _listen = function (key, fn, cache) {
@@ -80,8 +78,9 @@
                                    this();
                                })
                            }
-                           offlineStack = null;
+                           offlineStack = null; //设置标记，是先订阅后发布
                        },
+                       //只能同一个事件名字，只能保存一个回调函数
                        one: function (key, fn, last) {
                            _remove(key, cache);
                            this.listen(key, fn, last)
@@ -125,7 +124,6 @@
                    var event = this.create();
                    event.trigger.apply(this, arguments)
                }
-
            }
        })();
        return Event;
@@ -152,6 +150,4 @@
         console.log('two')
     })
     Event.create('one').trigger('click')
-
-
 })();

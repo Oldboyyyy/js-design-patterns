@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>命令模式1.0</title>
+</head>
+<body>
+<button>1</button>
+<button>2</button>
+<button>3</button>
+<script>
+    ;(function(){
+        var btn = document.querySelectorAll('button');
+        var setCommand = function(el, command){
+            el.onclick = function(){
+                command.start();
+            }
+        }
+
+        var MeaBar = {
+            refresh: function(){
+                console.log('refresh')
+            }
+        }
+        var SubBar = {
+            add: function(){
+                console.log('add')
+            },
+            remove: function(){
+                console.log('remove')
+            }
+        }
+
+        var RefreshCommand = function(obj){
+            this.way = obj;
+        }
+        RefreshCommand.prototype.start = function(){
+            this.way.refresh();
+        }
+
+        var AddCommand = function(obj){
+            this.way = obj;
+        }
+        AddCommand.prototype.start = function(){
+            this.way.add();
+        }
+        var RemoveCommand = function(obj){
+            this.way = obj;
+        }
+        RemoveCommand.prototype.start = function(){
+            this.way.remove();
+        }
+
+        setCommand(btn[0], new RefreshCommand(MeaBar))
+        setCommand(btn[1], new AddCommand(SubBar))
+        setCommand(btn[2], new RemoveCommand(SubBar))
+    })()
+</script>
+</body>
+</html>

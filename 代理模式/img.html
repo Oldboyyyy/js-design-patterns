@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图片预加载</title>
+    <style>
+        img[src='img/loading.png']{
+            animation: roate 1s linear infinite ;
+        }
+        @keyframes roate {
+            0{transform: rotate(0deg)}
+            100%{transform: rotate(360deg)}
+        }
+    </style>
+</head>
+<body>
+<script>
+   window.onload = function(){
+       var Img = (function(){
+           var img = document.createElement('img');
+           document.body.appendChild(img);
+
+           return function (src){ //利用闭包持久化数据
+               img.src = src
+           }
+       })();
+       var proxyImg = (function(){
+           var i = new Image(); //创建img标签 ，利用这个img便签去读取图片，通过他的onload事件，将图片链接添加到目标img完成替换
+           i.onload = function(){
+               setTimeout(function(){ //加长延迟，便于看出效果
+                   Img(i.src);
+               }, 2000)
+           }
+           return function (src){
+               Img("img/loading.png");
+               i.src = src
+           }
+       })();
+       proxyImg('https://www.baidu.com/img/baidu_jgylogo3.gif');
+   }
+</script>
+</body>
+</html>

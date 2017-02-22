@@ -21,12 +21,12 @@
                 }
             },
             minLength: function(val, len, errMsg){
-                if(val.length < len && val.length > 0){
+                if(val.length < len && !!val.length){
                     return errMsg;
                 }
             },
             maxLength: function(val, len, errMsg){
-                if(val.length > len && val.length > 0){
+                if(val.length > len && !!val.length){
                     return errMsg;
                 }
             },
@@ -99,6 +99,25 @@
                         name: 'maxLength',
                         len: 10,
                         msg: 'username长度不能大于10'
+                    }
+                ]
+            })
+            v.add({
+                el: form.userpass,
+                rules: [
+                    {
+                        name: 'minLength',
+                        len: 6,
+                        msg: 'userpass长度不能小于6'
+                    },
+                    {
+                        name: 'isNonEmpty',
+                        msg: 'userpass不能为空'
+                    },
+                    {
+                        name: 'maxLength',
+                        len: 10,
+                        msg: 'userpass长度不能大于10'
                     }
                 ]
             })

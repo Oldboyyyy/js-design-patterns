@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>命令模式3.0</title>
+</head>
+<style>
+    #ball{
+        margin: 0;
+        padding: 0;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: aqua;
+        position: absolute;
+        top: 100px;
+    }
+</style>
+<body>
+<div id="ball"></div>
+<input type="text" name="dis" id="endpos">px
+<button id="move">move</button>
+<button id="undo">undo</button>
+
+
+<script>
+    (function(){
+        var tween = {
+            /**
+             * 运动方式的策略对象
+             * @param t 已消耗时间
+             * @param b 起始位置
+             * @param c 目标位置
+             * @param d 总时间
+             * @returns {*}
+             */
+            linear: function(t, b, c, d){
+                return c * t / d + b;
+            },
+            easeIn:  function(t, b, c, d){
+                return c * (t /= d) * t + b;
+            },
+            strongEaseIn: function(t, b, c, d){
+                return c * (t /= d) * t * t * t * t + b;
+            },
+            strongEaseOut: function(t, b, c, d){
+                return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+            },
+            sineaseIn: function(t, b, c, d){
+                return c * (t /= d) * t * t + b;
+            },
+            sineaseOut: function(t, b, c, d){
+                return c * ((t = t / d - 1) * t * t + 1) + b;
+            },
+        }
+
+        var Animate = function(dom){
+            this.dom = dom; //进行dom元素
+            this.startTime = 0; //开始时间
+            this.startPos = 0; //开始位置
+            this.endPos = 0; //目标位置
+            this.className = null; //要改变的class名字
+            this.easing = null; //缓动算法
+            this.duration = null; //持续时间
+        }
+        Animate.prototype.start = function(className, endPos, duration, easing){
+            this.startTime = +new Date();
+            this.startPos = this.dom.getBoundingClientRect()[className];
+            this.endPos = endPos;
+            this.duration = duration;
+            this.easing = tween[easing];
+            this.className = className;
+            var self = this;
+            var time = setInterval(function(){
+                if(self.step() === 'false'){
+                    clearInterval(time);
+                }
+            },19)
+        }
+        Animate.prototype.step = function(){
+            var t = +new Date;
+            if(t >= this.startTime + this.duration){
+                this.update(this.endPos);
+                return false
+            }
+            var pos = this.easing(t-this.startTime, this.startPos, this.endPos, this.duration);
+            this.update(pos);
+        }
+        Animate.prototype.update = function(pos){
+            this.dom.style[this.className] = pos + 'px';
+        }
+
+        window.Animate = Animate
+    })();
+    (function (){
+        var ball = document.getElementById('ball'),
+                undo = document.getElementById('undo'),
+                dis = document.getElementById('endpos'),
+                move = document.getElementById('move');
+
+        var moveComment = function(obj){
+            return {
+                start: function(endPos){
+                    obj.start('left', endPos, 1000, 'strongEaseIn');
+                },
+                undo :function(){
+                    obj.start('left', obj.startPos, 1000, 'strongEaseIn');
+                }
+            }
+        }
+        var an = new Animate(ball);
+        move.onclick = function(){
+            moveComment(an).start(dis.value)
+        }
+        undo.onclick = function(){
+            moveComment(an).undo()
+        }
+
+    })()
+
+</script>
+</script>
+</body>
+</html>

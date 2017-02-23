@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>命令模式4.0</title>
+</head>
+
+<body>
+<button id="replay">replay</button>
+<script>
+    (function(){
+        //回放功能
+        var action = {
+            a: function(){
+                console.log('攻击')
+            },
+            d: function(){
+                console.log('防御')
+            },
+            j: function(){
+                console.log('跳跃')
+            },
+            c: function(){
+                console.log('蹲下')
+            }
+        }
+        var command = {
+            '119': 'j', //w
+            '115': 'c', //s
+            '97': 'd', //a
+            '100': 'a' //d
+        }
+        function setCommand(state){
+            return function (){
+                action[state]();
+            }
+        }
+        var cache = [];
+        document.onkeypress = function(e){
+            var keycode = String(e.keyCode);
+            var c = setCommand(command[keycode]);
+            if(!!c){
+                c();
+                cache.push(c)
+            }
+        }
+        var replay = document.getElementById('replay');
+        replay.onclick = function(){
+            for(var i = 0, l = cache.length; i < l; i++){
+                cache[i]();
+            }
+        }
+    })()
+</script>
+</body>
+</html>

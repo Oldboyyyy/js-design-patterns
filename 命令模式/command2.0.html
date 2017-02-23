@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>命令模式1.0</title>
+    <title>命令模式2.0</title>
 </head>
 <body>
 <button>1</button>
@@ -10,6 +10,7 @@
 <button>3</button>
 <script>
     ;(function(){
+        //采用闭包模式改写
         var btn = document.querySelectorAll('button');
         var setCommand = function(el, command){
             el.onclick = function(){
@@ -32,28 +33,34 @@
         }
 
         var RefreshCommand = function(obj){
-            this.way = obj;
+            return {
+                start: function(){
+                    obj.refresh()
+                }
+            }
         }
-        RefreshCommand.prototype.start = function(){
-            this.way.refresh();
-        }
+
 
         var AddCommand = function(obj){
-            this.way = obj;
-        }
-        AddCommand.prototype.start = function(){
-            this.way.add();
-        }
-        var RemoveCommand = function(obj){
-            this.way = obj;command1.0.html
-        }
-        RemoveCommand.prototype.start = function(){
-            this.way.remove();
+            return {
+                start: function(){
+                    obj.add();
+                }
+            }
         }
 
-        setCommand(btn[0], new RefreshCommand(MeaBar))
-        setCommand(btn[1], new AddCommand(SubBar))
-        setCommand(btn[2], new RemoveCommand(SubBar))
+        var RemoveCommand = function(obj){
+            return {
+                start: function(){
+                    obj.remove();
+                }
+            }
+        }
+
+
+        setCommand(btn[0],  RefreshCommand(MeaBar))
+        setCommand(btn[1],  AddCommand(SubBar))
+        setCommand(btn[2],  RemoveCommand(SubBar))
     })()
 </script>
 </body>
